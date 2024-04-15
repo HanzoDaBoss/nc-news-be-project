@@ -109,3 +109,51 @@ describe("/api/articles", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("GET 200: responds with an array of comments corresponding to the passed article id", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({body}) => {
+        const {comments} = body;
+        expect(comments.length).toBe(2);
+        comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("article_id");
+        });
+        expect(comments).toBeSortedBy("created_at", {
+          descending: true,
+          coerce: true,
+        });
+      });
+  });
+  test("GET 404: responds with a status and error message if article id is not found in database", () => {
+    return request(app)
+      .get("/api/articles/100/comments")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("GET 404: responds with a status and error message if article id is valid but final pathname is invalid", () => {
+    return request(app)
+      .get("/api/articles/9/invalid-endpoint")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
+  test("GET 400: responds with a status and error message if article id is invalid", () => {
+    return request(app)
+      .get("/api/articles/invalid_id/comments")
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
