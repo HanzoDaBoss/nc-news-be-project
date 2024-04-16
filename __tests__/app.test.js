@@ -284,3 +284,30 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  test("DELETE 204: deletes the comment corresponding to the comment id and responds with no content", () => {
+    return request(app)
+      .delete("/api/comments/3")
+      .expect(204)
+      .then(({body}) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("GET 404: responds with a status and error message if comment id is not found in database", () => {
+    return request(app)
+      .delete("/api/comments/100")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Comment not found");
+      });
+  });
+  test("GET 400: responds with a status and error message if comment id is invalid", () => {
+    return request(app)
+      .delete("/api/comments/invalid_id")
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
