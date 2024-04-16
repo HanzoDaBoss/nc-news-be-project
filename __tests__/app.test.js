@@ -83,6 +83,88 @@ describe("/api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+
+  test("PATCH 200: responds with an updated article object corresponding to the passed article id", () => {
+    return request(app)
+      .patch("/api/articles/6")
+      .send({
+        inc_votes: 42,
+      })
+      .expect(200)
+      .then(({body}) => {
+        const {article} = body;
+        expect(article).toHaveProperty("author", "icellusedkars");
+        expect(article).toHaveProperty("title", "A");
+        expect(article).toHaveProperty("article_id", 6);
+        expect(article).toHaveProperty("body", "Delicious tin of cat food");
+        expect(article).toHaveProperty("topic", "mitch");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes", 42);
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("PATCH 200: responds with an updated article object with subtracted votes", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({
+        inc_votes: -40,
+      })
+      .expect(200)
+      .then(({body}) => {
+        const {article} = body;
+        expect(article).toHaveProperty("author", "butter_bridge");
+        expect(article).toHaveProperty(
+          "title",
+          "Living in the shadow of a great man"
+        );
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty(
+          "body",
+          "I find this existence challenging"
+        );
+        expect(article).toHaveProperty("topic", "mitch");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes", 60);
+        expect(article).toHaveProperty(
+          "article_img_url",
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        );
+      });
+  });
+  test("PATCH 404: responds with a status and error message if article id is not found in database", () => {
+    return request(app)
+      .patch("/api/articles/100")
+      .send({
+        inc_votes: 42,
+      })
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("PATCH 400: responds with a status and error message if article id is invalid", () => {
+    return request(app)
+      .patch("/api/articles/invalid_id")
+      .send({
+        inc_votes: 42,
+      })
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH 400: responds with status and error message if passed object is missing inc_votes", () => {
+    return request(app)
+      .patch("/api/articles/2")
+      .send({})
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
 });
 
 describe("/api/articles", () => {

@@ -29,4 +29,31 @@ function selectArticles() {
     });
 }
 
-module.exports = {selectArticleById, selectArticles};
+function updateArticleById(article_id, {inc_votes}) {
+  const updateVals = [inc_votes, article_id];
+
+  if (updateVals.includes(undefined)) {
+    return Promise.reject({status: 400, msg: "Bad request"});
+  }
+
+  return db
+    .query(
+      `
+  UPDATE articles SET votes = votes + $1
+  WHERE article_id = $2
+  RETURNING *;
+  `,
+      updateVals
+    )
+    .then(({rows}) => {
+      if (rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Article not found",
+        });
+      }
+      return rows[0];
+    });
+}
+
+module.exports = {selectArticleById, selectArticles, updateArticleById};

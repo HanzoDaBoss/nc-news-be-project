@@ -40,7 +40,6 @@ function insertCommentByArticleId(article_id, {username, body}) {
       insertVals
     )
     .then(({rows}) => {
-      console.log(rows[0]);
       return rows[0];
     });
 }
