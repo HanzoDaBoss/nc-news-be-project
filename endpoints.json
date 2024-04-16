@@ -59,5 +59,21 @@
         }
       ]
     }
+  },
+  "POST /api/articles/:article_id/comments" : {
+    "description": "inserts a comment object corresponding to the passed article id and returns it",
+    "queries": [],
+    "exampleResponse": {
+      "comment": [
+        {
+          "comment_id": 21,
+          "body": "I like cheese",
+          "article_id": 1,
+          "author": "rogersop",
+          "votes": 0,
+          "created_at": "2024-04-16T11:11:14.872Z"
+        }
+      ]
+    }
   }
 }

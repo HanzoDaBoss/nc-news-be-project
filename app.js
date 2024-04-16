@@ -5,9 +5,13 @@ const {
   getArticleById,
   getArticles,
 } = require("./controllers/articles-controllers");
-const {getCommentsByArticleId} = require("./controllers/comments-controllers");
+const {
+  getCommentsByArticleId,
+  postCommentByArticleId,
+} = require("./controllers/comments-controllers");
 
 const app = express();
+app.use(express.json());
 
 app.get("/api/topics", getTopics);
 
@@ -16,6 +20,7 @@ app.get("/api", getEndpoints);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
+app.post("/api/articles/:article_id/comments", postCommentByArticleId);
 
 app.get("*", (request, response, next) => {
   response.status(404).send({msg: "Not found"});
@@ -30,6 +35,12 @@ app.use((error, request, response, next) => {
 app.use((error, request, response, next) => {
   if (error.code === "22P02") {
     response.status(400).send({msg: "Bad request"});
+  } else next(error);
+});
+
+app.use((error, request, response, next) => {
+  if (error.code === "23503") {
+    response.status(404).send({msg: "Not found"});
   } else next(error);
 });
 

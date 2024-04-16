@@ -156,4 +156,49 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+
+  test("POST 201: responds with the posted comment", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({
+        username: "lurker",
+        body: "Great supine protoplasmic invertebrate jellies",
+      })
+      .expect(201)
+      .then(({body}) => {
+        const {comment} = body;
+        expect(comment).toHaveProperty("comment_id", 19);
+        expect(comment).toHaveProperty("votes", 0);
+        expect(comment).toHaveProperty("created_at");
+        expect(comment).toHaveProperty("author", "lurker");
+        expect(comment).toHaveProperty(
+          "body",
+          "Great supine protoplasmic invertebrate jellies"
+        );
+        expect(comment).toHaveProperty("article_id", 2);
+      });
+  });
+  test("POST 400: responds with status and error message if passed comment is missing required fields", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({
+        username: "lurker",
+      })
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("POST 404: responds with status and error message if article id is not found in database", () => {
+    return request(app)
+      .post("/api/articles/100/comments")
+      .send({
+        username: "lurker",
+        body: "Great supine protoplasmic invertebrate jellies",
+      })
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
 });
