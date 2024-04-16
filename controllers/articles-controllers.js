@@ -14,9 +14,12 @@ function getArticleById(request, response, next) {
 }
 
 function getArticles(request, response, next) {
-  selectArticles().then((articles) => {
-    response.status(200).send({articles});
-  });
+  const {topic} = request.query;
+  selectArticles(topic)
+    .then((articles) => {
+      response.status(200).send({articles});
+    })
+    .catch(next);
 }
 
 function patchArticleById(request, response, next) {

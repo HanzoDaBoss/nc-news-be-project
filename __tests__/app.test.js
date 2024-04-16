@@ -190,6 +190,25 @@ describe("/api/articles", () => {
         });
       });
   });
+  test("GET 200: responds with an array of articles filtered by the passed topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({body}) => {
+        const {articles} = body;
+        expect(articles.every((article) => article.topic === "mitch")).toBe(
+          true
+        );
+      });
+  });
+  test("GET 404: responds with a status and error message if topic is not found in database", () => {
+    return request(app)
+      .get("/api/articles?topic=bananas")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
