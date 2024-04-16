@@ -22,4 +22,27 @@ function selectCommentsByArticleId(article_id) {
     });
 }
 
-module.exports = {selectCommentsByArticleId};
+function insertCommentByArticleId(article_id, {username, body}) {
+  const insertVals = [username, body, article_id];
+
+  if (insertVals.includes(undefined)) {
+    return Promise.reject({status: 400, msg: "Bad request"});
+  }
+
+  return db
+    .query(
+      `
+  INSERT INTO comments (votes, author, body, article_id)
+  VALUES
+  (0, $1, $2, $3)
+  RETURNING *;
+  `,
+      insertVals
+    )
+    .then(({rows}) => {
+      console.log(rows[0]);
+      return rows[0];
+    });
+}
+
+module.exports = {selectCommentsByArticleId, insertCommentByArticleId};
