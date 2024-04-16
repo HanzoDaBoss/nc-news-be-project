@@ -294,7 +294,7 @@ describe("/api/comments/:comment_id", () => {
         expect(body).toEqual({});
       });
   });
-  test("GET 404: responds with a status and error message if comment id is not found in database", () => {
+  test("DELETE 404: responds with a status and error message if comment id is not found in database", () => {
     return request(app)
       .delete("/api/comments/100")
       .expect(404)
@@ -302,7 +302,7 @@ describe("/api/comments/:comment_id", () => {
         expect(body.msg).toBe("Comment not found");
       });
   });
-  test("GET 400: responds with a status and error message if comment id is invalid", () => {
+  test("DELETE 400: responds with a status and error message if comment id is invalid", () => {
     return request(app)
       .delete("/api/comments/invalid_id")
       .expect(400)
