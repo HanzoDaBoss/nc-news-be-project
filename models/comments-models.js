@@ -1,4 +1,3 @@
-const {deleteCommentById} = require("../controllers/comments-controllers");
 const db = require("../db/connection");
 
 function selectCommentsByArticleId(article_id) {
