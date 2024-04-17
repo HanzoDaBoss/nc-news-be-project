@@ -2,7 +2,17 @@ const db = require("../db/connection");
 
 function selectArticleById(article_id) {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    .query(
+      `
+    SELECT articles.author, title, articles.article_id, articles.body, articles.topic, articles.created_at, articles.votes, article_img_url,
+    CAST(COUNT(comments.article_id) AS int) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id;
+    `,
+      [article_id]
+    )
     .then(({rows}) => {
       if (rows.length === 0) {
         return Promise.reject({
@@ -33,7 +43,6 @@ function selectArticles(topic) {
   `;
 
   return db.query(sqlQueryString, queryVals).then(({rows}) => {
-    console.log(rows);
     if (rows.length === 0) {
       return Promise.reject({status: 404, msg: "Not found"});
     }
