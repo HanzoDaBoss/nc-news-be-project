@@ -83,6 +83,15 @@ describe("/api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+  test("GET 200: responds with an article object now containing the comment count", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then(({body}) => {
+        const {article} = body;
+        expect(article).toHaveProperty("comment_count", 2);
+      });
+  });
 
   test("PATCH 200: responds with an updated article object corresponding to the passed article id", () => {
     return request(app)
