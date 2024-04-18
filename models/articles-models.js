@@ -24,7 +24,15 @@ function selectArticleById(article_id) {
     });
 }
 
-function selectArticles(topic) {
+function selectArticles(topic, sort_by = "created_at", order = "DESC") {
+  if (!["author", "title", "topic", "created_at", "votes"].includes(sort_by)) {
+    return Promise.reject({status: 400, msg: "Invalid sort query"});
+  }
+  const orderBy = order.toUpperCase();
+  if (!["DESC", "ASC"].includes(orderBy)) {
+    return Promise.reject({status: 400, msg: "Invalid order query"});
+  }
+
   const queryVals = [];
   let sqlQueryString = `
   SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
@@ -40,7 +48,7 @@ function selectArticles(topic) {
 
   sqlQueryString += `
   GROUP BY articles.article_id
-  ORDER BY articles.created_at DESC;
+  ORDER BY articles.${sort_by} ${orderBy};
   `;
 
   return db.query(sqlQueryString, queryVals).then(({rows}) => {

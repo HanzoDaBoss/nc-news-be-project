@@ -226,6 +226,46 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Not found");
       });
   });
+  test("GET 200: article objects must be sorted by the passed sort_by query in default descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title")
+      .expect(200)
+      .then(({body}) => {
+        const {articles} = body;
+        expect(articles).toBeSortedBy("title", {
+          descending: true,
+          coerce: true,
+        });
+      });
+  });
+  test("GET 200: article objects must be sorted by the passed sort_by query and order query", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=asc")
+      .expect(200)
+      .then(({body}) => {
+        const {articles} = body;
+        expect(articles).toBeSortedBy("title", {
+          ascending: true,
+          coerce: true,
+        });
+      });
+  });
+  test("GET 400: responds with a status and error message if sort_by query is invalid", () => {
+    return request(app)
+      .get("/api/articles?sort_by=bananas")
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Invalid sort query");
+      });
+  });
+  test("GET 400: responds with a status and error message if order query is neither ASC OR DESC", () => {
+    return request(app)
+      .get("/api/articles?sort_by=author&order=invalid_order")
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Invalid order query");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
