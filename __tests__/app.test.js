@@ -182,10 +182,6 @@ describe("/api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({body}) => {
-        expect(body.articles).toBeSortedBy("created_at", {
-          descending: true,
-          coerce: true,
-        });
         body.articles.forEach((article) => {
           expect(article).toHaveProperty("author");
           expect(article).toHaveProperty("title");
@@ -196,6 +192,18 @@ describe("/api/articles", () => {
           expect(article).toHaveProperty("article_img_url");
           expect(article).toHaveProperty("comment_count");
           expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+  test("GET 200: article objects must be sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({body}) => {
+        expect(body.articles.length).toBe(13);
+        expect(body.articles).toBeSortedBy("created_at", {
+          descending: true,
+          coerce: true,
         });
       });
   });
@@ -230,13 +238,26 @@ describe("/api/articles/:article_id/comments", () => {
         expect(comments.length).toBe(2);
         comments.forEach((comment) => {
           expect(comment).toHaveProperty("comment_id");
+          expect(typeof comment.comment_id).toBe("number");
           expect(comment).toHaveProperty("votes");
+          expect(typeof comment.votes).toBe("number");
           expect(comment).toHaveProperty("created_at");
+          expect(typeof comment.created_at).toBe("string");
           expect(comment).toHaveProperty("author");
+          expect(typeof comment.author).toBe("string");
           expect(comment).toHaveProperty("body");
+          expect(typeof comment.body).toBe("string");
           expect(comment).toHaveProperty("article_id");
+          expect(typeof comment.article_id).toBe("number");
         });
-        expect(comments).toBeSortedBy("created_at", {
+      });
+  });
+  test("GET 200: comment objects must be sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({body}) => {
+        expect(body.comments).toBeSortedBy("created_at", {
           descending: true,
           coerce: true,
         });
@@ -299,6 +320,18 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+  test("POST 404: responds with status and error message if passed comment has a username that does not exist in the database", () => {
+    return request(app)
+      .post("/api/articles/2/comments")
+      .send({
+        username: "borisjohnson1",
+        body: "Great supine protoplasmic invertebrate jellies",
+      })
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
   test("POST 404: responds with status and error message if article id is not found in database", () => {
     return request(app)
       .post("/api/articles/100/comments")
@@ -311,16 +344,23 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Not found");
       });
   });
+  test("POST 400: responds with status and error message if article id is not found in database", () => {
+    return request(app)
+      .post("/api/articles/invalid_id/comments")
+      .send({
+        username: "lurker",
+        body: "Great supine protoplasmic invertebrate jellies",
+      })
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
 });
 
 describe("/api/comments/:comment_id", () => {
   test("DELETE 204: deletes the comment corresponding to the comment id and responds with no content", () => {
-    return request(app)
-      .delete("/api/comments/3")
-      .expect(204)
-      .then(({body}) => {
-        expect(body).toEqual({});
-      });
+    return request(app).delete("/api/comments/3").expect(204);
   });
   test("DELETE 404: responds with a status and error message if comment id is not found in database", () => {
     return request(app)
