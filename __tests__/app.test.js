@@ -435,3 +435,28 @@ describe("/api/users", () => {
       });
   });
 });
+
+describe("/api/users/:username", () => {
+  test("GET 200: responds with an user object corresponding to the username id", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then(({body}) => {
+        const {user} = body;
+        expect(user).toHaveProperty("username");
+        expect(typeof user.username).toBe("string");
+        expect(user).toHaveProperty("avatar_url");
+        expect(typeof user.avatar_url).toBe("string");
+        expect(user).toHaveProperty("name");
+        expect(typeof user.name).toBe("string");
+      });
+  });
+  test("GET 404: responds with a status and error message if username is not found in database", () => {
+    return request(app)
+      .get("/api/users/borisjohnson1")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("User not found");
+      });
+  });
+});
