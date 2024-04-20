@@ -30,7 +30,7 @@
     "description": "inserts an article object and returns it",
     "queries": [],
     "exampleResponse": {
-      "articles": [
+      "articles":
         {
           "title": "Meow World order",
           "topic": "cats",
@@ -41,7 +41,6 @@
           "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           "comment_count": 0
         }
-      ]
     }
   },
   "GET /api/articles/:article_id" : {
