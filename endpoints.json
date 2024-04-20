@@ -26,6 +26,24 @@
       ]
     }
   },
+  "POST /api/articles": {
+    "description": "inserts an article object and returns it",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "title": "Meow World order",
+          "topic": "cats",
+          "author": "lurker",
+          "body": "Cats have officially taken over the world",
+          "created_at": "2024-04-20T15:56:18.577Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": 0
+        }
+      ]
+    }
+  },
   "GET /api/articles/:article_id" : {
     "description": "served up an article object corresponding to the passed article id",
     "queries": [],
