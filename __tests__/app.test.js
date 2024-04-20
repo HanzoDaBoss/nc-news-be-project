@@ -418,6 +418,75 @@ describe("/api/comments/:comment_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+
+  test("PATCH 200: responds with an updated comment object corresponding to the passed comment id", () => {
+    return request(app)
+      .patch("/api/comments/5")
+      .send({
+        inc_votes: 50,
+      })
+      .expect(200)
+      .then(({body}) => {
+        const {comment} = body;
+        expect(comment).toHaveProperty("comment_id", 5);
+        expect(comment).toHaveProperty("body", "I hate streaming noses");
+        expect(comment).toHaveProperty("article_id", 1);
+        expect(comment).toHaveProperty("author", "icellusedkars");
+        expect(comment).toHaveProperty("votes", 50);
+        expect(comment).toHaveProperty("created_at");
+      });
+  });
+  test("PATCH 200: responds with an updated comment object with subtracted votes", () => {
+    return request(app)
+      .patch("/api/comments/2")
+      .send({
+        inc_votes: -4,
+      })
+      .expect(200)
+      .then(({body}) => {
+        const {comment} = body;
+        expect(comment).toHaveProperty("comment_id", 2);
+        expect(comment).toHaveProperty(
+          "body",
+          "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky."
+        );
+        expect(comment).toHaveProperty("article_id", 1);
+        expect(comment).toHaveProperty("author", "butter_bridge");
+        expect(comment).toHaveProperty("votes", 10);
+        expect(comment).toHaveProperty("created_at");
+      });
+  });
+  test("PATCH 404: responds with a status and error message if comment id is not found in database", () => {
+    return request(app)
+      .patch("/api/comments/100")
+      .send({
+        inc_votes: 50,
+      })
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Comment not found");
+      });
+  });
+  test("PATCH 400: responds with a status and error message if article id is invalid", () => {
+    return request(app)
+      .patch("/api/comments/invalid_id")
+      .send({
+        inc_votes: 50,
+      })
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH 400: responds with status and error message if passed object is missing inc_votes", () => {
+    return request(app)
+      .patch("/api/comments/2")
+      .send({})
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
 });
 
 describe("/api/users", () => {
