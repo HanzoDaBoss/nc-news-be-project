@@ -266,6 +266,63 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Invalid order query");
       });
   });
+
+  test("POST 201: responds with the posted article", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "lurker",
+        title: "Meow World order",
+        body: "Cats have officially taken over the world",
+        topic: "cats",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(201)
+      .then(({body}) => {
+        const {article} = body;
+        expect(article).toHaveProperty("author", "lurker");
+        expect(article).toHaveProperty("title", "Meow World order");
+        expect(article).toHaveProperty("article_id", 14);
+        expect(article).toHaveProperty(
+          "body",
+          "Cats have officially taken over the world"
+        );
+        expect(article).toHaveProperty("topic", "cats");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+        expect(article).toHaveProperty("comment_count");
+      });
+  });
+  test("POST 400: responds with status and error message if passed article is missing required fields", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        body: "Cats have officially taken over the world",
+        topic: "cats",
+      })
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("POST 404: responds with status and error message if passed article has an author and topic that are not in database", () => {
+    return request(app)
+      .post("/api/articles")
+      .send({
+        author: "borisjohnson1",
+        title: "Meow World order",
+        body: "Cats have officially taken over the world",
+        topic: "fools",
+        article_img_url:
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      })
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not found");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
@@ -384,7 +441,7 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Not found");
       });
   });
-  test("POST 400: responds with status and error message if article id is not found in database", () => {
+  test("POST 400: responds with status and error message if article id is invalid", () => {
     return request(app)
       .post("/api/articles/invalid_id/comments")
       .send({

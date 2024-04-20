@@ -2,6 +2,7 @@ const {
   selectArticleById,
   selectArticles,
   updateArticleById,
+  insertArticle,
 } = require("../models/articles-models");
 
 function getArticleById(request, response, next) {
@@ -32,4 +33,13 @@ function patchArticleById(request, response, next) {
     .catch(next);
 }
 
-module.exports = {getArticleById, getArticles, patchArticleById};
+function postArticle(request, response, next) {
+  const {body} = request;
+  insertArticle(body)
+    .then((article) => {
+      response.status(201).send({article});
+    })
+    .catch(next);
+}
+
+module.exports = {getArticleById, getArticles, patchArticleById, postArticle};

@@ -86,4 +86,40 @@ function updateArticleById(article_id, {inc_votes}) {
     });
 }
 
-module.exports = {selectArticleById, selectArticles, updateArticleById};
+function insertArticle({author, title, body, topic, article_img_url}) {
+  const insertVals = [author, title, body, topic];
+  if (insertVals.includes(undefined)) {
+    return Promise.reject({status: 400, msg: "Bad request"});
+  }
+
+  return db
+    .query(
+      `
+  INSERT INTO articles (author, title, body, topic, article_img_url)
+  VALUES
+  ($1, $2, $3, $4, COALESCE($5, 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'));
+  `,
+      [...insertVals, article_img_url]
+    )
+    .then(() => {
+      return db.query(`
+      SELECT articles.author, articles.title, articles.article_id, articles.body, articles.topic, articles.created_at, articles.votes, articles.article_img_url,
+      CAST(COUNT(comments.article_id) AS int)
+      AS comment_count FROM articles
+      LEFT JOIN comments ON articles.article_id = comments.article_id
+      GROUP BY articles.article_id
+      ORDER BY articles.article_id DESC
+      LIMIT 1;
+      `);
+    })
+    .then(({rows}) => {
+      return rows[0];
+    });
+}
+
+module.exports = {
+  selectArticleById,
+  selectArticles,
+  updateArticleById,
+  insertArticle,
+};
