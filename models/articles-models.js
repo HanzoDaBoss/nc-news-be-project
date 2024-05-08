@@ -55,10 +55,17 @@ function selectArticles(topic, sort_by = "created_at", order = "DESC") {
     queryVals.push(topic);
   }
 
-  sqlQueryString += `
-  GROUP BY articles.article_id
-  ORDER BY articles.${sort_by} ${orderBy};
-  `;
+  if (sort_by === "comment_count") {
+    sqlQueryString += `
+    GROUP BY articles.article_id
+    ORDER BY CAST(COUNT(comments.article_id) AS int) ${orderBy};
+    `;
+  } else {
+    sqlQueryString += `
+    GROUP BY articles.article_id
+    ORDER BY articles.${sort_by} ${orderBy};
+    `;
+  }
 
   return db.query(sqlQueryString, queryVals).then(({ rows }) => {
     if (rows.length === 0) {
