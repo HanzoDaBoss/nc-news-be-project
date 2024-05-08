@@ -13,7 +13,7 @@ function selectArticleById(article_id) {
     `,
       [article_id]
     )
-    .then(({rows}) => {
+    .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({
           status: 404,
@@ -25,12 +25,21 @@ function selectArticleById(article_id) {
 }
 
 function selectArticles(topic, sort_by = "created_at", order = "DESC") {
-  if (!["author", "title", "topic", "created_at", "votes"].includes(sort_by)) {
-    return Promise.reject({status: 400, msg: "Invalid sort query"});
+  if (
+    ![
+      "author",
+      "title",
+      "topic",
+      "created_at",
+      "votes",
+      "comment_count",
+    ].includes(sort_by)
+  ) {
+    return Promise.reject({ status: 400, msg: "Invalid sort query" });
   }
   const orderBy = order.toUpperCase();
   if (!["DESC", "ASC"].includes(orderBy)) {
-    return Promise.reject({status: 400, msg: "Invalid order query"});
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
 
   const queryVals = [];
@@ -51,19 +60,19 @@ function selectArticles(topic, sort_by = "created_at", order = "DESC") {
   ORDER BY articles.${sort_by} ${orderBy};
   `;
 
-  return db.query(sqlQueryString, queryVals).then(({rows}) => {
+  return db.query(sqlQueryString, queryVals).then(({ rows }) => {
     if (rows.length === 0) {
-      return Promise.reject({status: 404, msg: "Not found"});
+      return Promise.reject({ status: 404, msg: "Not found" });
     }
     return rows;
   });
 }
 
-function updateArticleById(article_id, {inc_votes}) {
+function updateArticleById(article_id, { inc_votes }) {
   const updateVals = [inc_votes, article_id];
 
   if (updateVals.includes(undefined)) {
-    return Promise.reject({status: 400, msg: "Bad request"});
+    return Promise.reject({ status: 400, msg: "Bad request" });
   }
 
   return db
@@ -75,7 +84,7 @@ function updateArticleById(article_id, {inc_votes}) {
   `,
       updateVals
     )
-    .then(({rows}) => {
+    .then(({ rows }) => {
       if (rows.length === 0) {
         return Promise.reject({
           status: 404,
@@ -86,10 +95,10 @@ function updateArticleById(article_id, {inc_votes}) {
     });
 }
 
-function insertArticle({author, title, body, topic, article_img_url}) {
+function insertArticle({ author, title, body, topic, article_img_url }) {
   const insertVals = [author, title, body, topic];
   if (insertVals.includes(undefined)) {
-    return Promise.reject({status: 400, msg: "Bad request"});
+    return Promise.reject({ status: 400, msg: "Bad request" });
   }
 
   return db
@@ -112,7 +121,7 @@ function insertArticle({author, title, body, topic, article_img_url}) {
       LIMIT 1;
       `);
     })
-    .then(({rows}) => {
+    .then(({ rows }) => {
       return rows[0];
     });
 }
