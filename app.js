@@ -5,7 +5,12 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 
-app.use(cors());
+let corsOptions = {
+  origin: ["http://localhost:5173", "https://newscoders.netlify.app"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use("/api", apiRouter);
 
